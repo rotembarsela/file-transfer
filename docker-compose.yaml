@@ -1,1 +1,32 @@
-FROM node:22-alpine
+version: "3.8"
+
+services:
+  server:
+    build:
+      context: ./packages/server
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./packages/server:/app
+      - tmp_data:/app/tmp
+    environment:
+      - DATABASE_URL=postgres://user:password@db:5432/mydb?sslmode=disable
+    depends_on:
+      - db
+
+  db:
+    build:
+      context: ./packages/db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  tmp_data:
+  db_data:
