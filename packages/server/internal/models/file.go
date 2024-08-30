@@ -6,6 +6,7 @@ import (
 )
 
 type FileMetadata struct {
+	ID         int
 	FileName   string
 	FilePath   string
 	UploadTime time.Time

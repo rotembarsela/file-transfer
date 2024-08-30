@@ -1,0 +1,25 @@
+# .air.toml
+
+# Config file for Air
+[build]
+# Commands to build your application
+cmd = "go build -o ./tmp/main ./main.go"
+# Directory where the built binary is located
+bin = "tmp/main"
+# Delay before Air starts watching for changes again
+delay = 1000
+# Working directory to use
+full_bin = "/app/tmp/main"
+
+[log]
+# Display the timestamp for log messages
+timestamp = true
+
+[watch]
+# Paths to watch for changes
+include = ["."]
+exclude = ["tmp", "vendor"]
+
+[misc]
+# List of file extensions to watch
+clean_on_exit = true
