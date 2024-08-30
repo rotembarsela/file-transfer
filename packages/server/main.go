@@ -32,8 +32,11 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("/register", api.RegisterHandler(db))
 	mux.HandleFunc("/login", api.LoginHandler(db))
-	mux.HandleFunc("/files", api.LoginHandler(db))
+	mux.HandleFunc("/files", api.FetchAllFilesHandler(db))
+	mux.HandleFunc("/files/", api.FetchFileHandler(db))
+	mux.HandleFunc("/files/delete/", api.DeleteFileHandler(db))
 	mux.HandleFunc("/upload", api.UploadFileHandler(db))
 	mux.HandleFunc("/download", api.DownloadLinkHandler(db))
 	mux.Handle("/protected", middleware.AuthMiddleware(http.HandlerFunc(api.ProtectedHandler(db))))
