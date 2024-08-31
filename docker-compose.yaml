@@ -1,10 +1,26 @@
 version: "3.8"
 
 services:
+  app:
+    build:
+      context: ./packages/app
+      target: ${BUILD_TARGET:-dev}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./packages/app:/app
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+    depends_on:
+      - server
+    profiles:
+      - dev
+      - prod
+
   server:
     build:
       context: ./packages/server
-      dockerfile: Dockerfile.dev
+      target: ${BUILD_TARGET:-dev}
     ports:
       - "8080:8080"
     volumes:
@@ -13,11 +29,14 @@ services:
     environment:
       - DATABASE_URL=postgres://user:password@db:5432/mydb?sslmode=disable
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    profiles:
+      - dev
+      - prod
 
   db:
-    build:
-      context: ./packages/db
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
@@ -26,6 +45,11 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d mydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   tmp_data:

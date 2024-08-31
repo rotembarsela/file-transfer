@@ -6,6 +6,10 @@ import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 export default defineConfig({
     plugins: [react(), TanStackRouterVite()],
     server: {
-        open: true,
+        host: true,
+        port: 3000,
+        watch: {
+            usePolling: true, // windows users
+        },
     },
 })
