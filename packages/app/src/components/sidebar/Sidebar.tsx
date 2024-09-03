@@ -1,21 +1,19 @@
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 
 export const Sidebar = () => {
-    const navigate = useNavigate()
-
     return (
         <aside
             className="fixed top-0 left-0 w-64 h-full"
             aria-label="Main Sidebar"
         >
             <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50">
-                <h2
+                <Link
                     id="sidebar-title"
-                    className="text-2xl font-semibold whitespace-nowrap cursor-pointer mb-4 text-center"
-                    onClick={() => navigate({ to: '/' })}
+                    className="block text-2xl font-semibold whitespace-nowrap cursor-pointer mb-4 text-center"
+                    to="/"
                 >
-                    Autumn
-                </h2>
+                    <span className="text-amber-500">A</span>utumn
+                </Link>
                 <ul
                     className="space-y-2 font-medium"
                     role="menu"

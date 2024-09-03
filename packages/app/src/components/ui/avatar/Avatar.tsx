@@ -1,12 +1,10 @@
-type AvatarProps = {
-    onClick: () => void
-}
+import { Link } from '@tanstack/react-router'
 
-export const Avatar = ({ onClick }: AvatarProps) => {
+export const Avatar = () => {
     return (
-        <div
+        <Link
             className="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full cursor-pointer"
-            onClick={onClick}
+            to="/settings"
         >
             <svg
                 className="absolute w-12 h-12 text-gray-400 -left-1"
@@ -20,6 +18,6 @@ export const Avatar = ({ onClick }: AvatarProps) => {
                     clipRule="evenodd"
                 ></path>
             </svg>
-        </div>
+        </Link>
     )
 }

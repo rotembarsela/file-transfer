@@ -1,4 +1,5 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
+import { FileCard } from '../components/fileCard'
 
 export const Route = createLazyFileRoute('/')({
     component: Index,
@@ -7,7 +8,14 @@ export const Route = createLazyFileRoute('/')({
 function Index() {
     return (
         <div>
-            <h3>Welcome Home!</h3>
+            <div>
+                <h3>New uploaded files</h3>
+                <div className="grid grid-cols-3 gap-3">
+                    <FileCard fileType="xlsx" />
+                    <FileCard fileType="doc" />
+                    <FileCard fileType="sh" />
+                </div>
+            </div>
         </div>
     )
 }

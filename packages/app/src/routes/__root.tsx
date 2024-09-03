@@ -20,6 +20,7 @@ const TanStackRouterDevtools =
 export const Route = createRootRoute({
     component: () => (
         <>
+            <Sidebar />
             <div className="min-h-[100dvh] grid grid-rows-[auto_1fr_auto] ml-64">
                 <Header />
                 <main className="max-w-[97%] w-full mx-auto my-6">
@@ -27,11 +28,10 @@ export const Route = createRootRoute({
                     <Outlet />
                 </main>
                 <Footer />
-                <Suspense>
-                    <TanStackRouterDevtools />
-                </Suspense>
             </div>
-            <Sidebar />
+            <Suspense>
+                <TanStackRouterDevtools />
+            </Suspense>
         </>
     ),
 })
