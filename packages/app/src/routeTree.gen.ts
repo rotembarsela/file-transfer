@@ -13,6 +13,8 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as SettingsImport } from './routes/settings'
+import { Route as FilesImport } from './routes/files'
 import { Route as AuthenticatedImport } from './routes/_authenticated'
 
 // Create Virtual Routes
@@ -26,6 +28,16 @@ const AboutLazyRoute = AboutLazyImport.update({
   path: '/about',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/about.lazy').then((d) => d.Route))
+
+const SettingsRoute = SettingsImport.update({
+  path: '/settings',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const FilesRoute = FilesImport.update({
+  path: '/files',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AuthenticatedRoute = AuthenticatedImport.update({
   id: '/_authenticated',
@@ -55,6 +67,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedImport
       parentRoute: typeof rootRoute
     }
+    '/files': {
+      id: '/files'
+      path: '/files'
+      fullPath: '/files'
+      preLoaderRoute: typeof FilesImport
+      parentRoute: typeof rootRoute
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsImport
+      parentRoute: typeof rootRoute
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -69,6 +95,8 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
+  FilesRoute,
+  SettingsRoute,
   AboutLazyRoute,
 })
 
@@ -82,6 +110,8 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/",
         "/_authenticated",
+        "/files",
+        "/settings",
         "/about"
       ]
     },
@@ -90,6 +120,12 @@ export const routeTree = rootRoute.addChildren({
     },
     "/_authenticated": {
       "filePath": "_authenticated.tsx"
+    },
+    "/files": {
+      "filePath": "files.tsx"
+    },
+    "/settings": {
+      "filePath": "settings.tsx"
     },
     "/about": {
       "filePath": "about.lazy.tsx"
