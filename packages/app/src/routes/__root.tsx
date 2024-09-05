@@ -23,7 +23,7 @@ export const Route = createRootRoute({
             <Sidebar />
             <div className="min-h-[100dvh] grid grid-rows-[auto_1fr_auto] ml-64">
                 <Header />
-                <main className="max-w-[97%] w-full mx-auto my-6">
+                <main className="max-w-[97%] w-full mx-auto my-6 flex flex-col gap-3">
                     <Heading />
                     <Outlet />
                 </main>

@@ -1,5 +1,11 @@
 import { Link } from '@tanstack/react-router'
 
+// Define the tabs as an array of objects
+const tabs = [
+    { name: 'Files', path: '/files' },
+    { name: 'Settings', path: '/settings' },
+]
+
 export const Sidebar = () => {
     return (
         <aside
@@ -19,15 +25,21 @@ export const Sidebar = () => {
                     role="menu"
                     aria-labelledby="sidebar-title"
                 >
-                    <li role="none">
-                        <Link
-                            to="/files"
-                            className="cursor-pointer flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group"
-                            role="menuitem"
-                        >
-                            Files
-                        </Link>
-                    </li>
+                    {tabs.map((tab, index) => (
+                        <li key={index} role="none">
+                            <Link
+                                to={tab.path}
+                                className={`cursor-pointer flex items-center p-2 text-gray-900 rounded-lg group hover:bg-gray-100`}
+                                activeProps={{
+                                    className:
+                                        'bg-gray-200 pointer-events-none hover:bg-transparent',
+                                }}
+                                role="menuitem"
+                            >
+                                {tab.name}
+                            </Link>
+                        </li>
+                    ))}
                 </ul>
             </div>
         </aside>

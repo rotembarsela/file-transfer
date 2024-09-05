@@ -34,9 +34,9 @@ const Kebab = ({ onClick }: KebabProps) => {
             <g
                 fill="none"
                 stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
             >
                 <circle cx="8" cy="2.5" r=".75" />
                 <circle cx="8" cy="8" r=".75" />
