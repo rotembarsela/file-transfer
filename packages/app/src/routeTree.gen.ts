@@ -15,6 +15,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRoute } from './routes/__root'
 import { Route as UploadImport } from './routes/upload'
 import { Route as SettingsImport } from './routes/settings'
+import { Route as ProfileImport } from './routes/profile'
 import { Route as FilesImport } from './routes/files'
 import { Route as AuthenticatedImport } from './routes/_authenticated'
 
@@ -37,6 +38,11 @@ const UploadRoute = UploadImport.update({
 
 const SettingsRoute = SettingsImport.update({
   path: '/settings',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProfileRoute = ProfileImport.update({
+  path: '/profile',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -80,6 +86,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FilesImport
       parentRoute: typeof rootRoute
     }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileImport
+      parentRoute: typeof rootRoute
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -109,6 +122,7 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
   FilesRoute,
+  ProfileRoute,
   SettingsRoute,
   UploadRoute,
   AboutLazyRoute,
@@ -125,6 +139,7 @@ export const routeTree = rootRoute.addChildren({
         "/",
         "/_authenticated",
         "/files",
+        "/profile",
         "/settings",
         "/upload",
         "/about"
@@ -138,6 +153,9 @@ export const routeTree = rootRoute.addChildren({
     },
     "/files": {
       "filePath": "files.tsx"
+    },
+    "/profile": {
+      "filePath": "profile.tsx"
     },
     "/settings": {
       "filePath": "settings.tsx"

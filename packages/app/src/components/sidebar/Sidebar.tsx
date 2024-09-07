@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router'
 
-// Define the tabs as an array of objects
 const tabs = [
     { name: 'Files', path: '/files' },
     { name: 'Settings', path: '/settings' },

@@ -10,6 +10,7 @@ export const Heading = () => {
         '/settings': 'Settings',
         '/about': 'About Us',
         '/upload': 'Upload',
+        '/profile': 'Profile',
     }
 
     const currentTitle = titles[location.pathname] || 'Title'
