@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { FilesTable } from '../components/filesTable.tsx'
-import { IFilesTable } from '../types/index.ts'
-import { useMemo, useState } from 'react'
+import { IFile, IFilesTable } from '../types/index.ts'
+import { useEffect, useMemo, useState } from 'react'
 import Button from '../components/ui/button/Button.tsx'
+import { APIFetcher } from '../utils'
 
 export const Route = createFileRoute('/files')({
     component: Files,
@@ -81,6 +82,22 @@ function Files() {
         setStatusFilter('All')
         setDateFilter('All')
     }
+
+    useEffect(() => {
+        async function fetchFiles() {
+            try {
+                const filesResponse = await APIFetcher<IFile[], undefined>(
+                    'files',
+                    'GET'
+                )
+                console.log(filesResponse)
+            } catch (error) {
+                console.error(error)
+            }
+        }
+
+        fetchFiles()
+    }, [])
 
     return (
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg">

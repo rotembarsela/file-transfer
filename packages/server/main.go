@@ -32,7 +32,7 @@ func main() {
 	registerRoutes(mux, db)
 
 	log.Println("Server started on :8080")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	log.Fatal(http.ListenAndServe(":8080", middleware.CorsMiddleware(mux)))
 }
 
 func connectWithRetry(databaseUrl string, maxRetries int, delay time.Duration) (*sql.DB, error) {
@@ -60,12 +60,16 @@ func connectWithRetry(databaseUrl string, maxRetries int, delay time.Duration) (
 }
 
 func registerRoutes(mux *http.ServeMux, db *sql.DB) {
-	mux.HandleFunc("/register", api.RegisterHandler(db))
-	mux.HandleFunc("/login", api.LoginHandler(db))
-	mux.HandleFunc("/files", api.FetchAllFilesHandler(db))
-	mux.HandleFunc("/files/", api.FetchFileHandler(db))
-	mux.HandleFunc("/files/delete/", api.DeleteFileHandler(db))
-	mux.HandleFunc("/upload", api.UploadFileHandler(db))
-	mux.HandleFunc("/download", api.DownloadLinkHandler(db))
-	mux.Handle("/protected", middleware.AuthMiddleware(http.HandlerFunc(api.ProtectedHandler(db))))
+	apiMux := http.NewServeMux()
+
+	apiMux.HandleFunc("/register", api.RegisterHandler(db))
+	apiMux.HandleFunc("/login", api.LoginHandler(db))
+	apiMux.HandleFunc("/files", api.FetchAllFilesHandler(db))
+	apiMux.HandleFunc("/files/", api.FetchFileHandler(db))
+	apiMux.HandleFunc("/files/delete/", api.DeleteFileHandler(db))
+	apiMux.HandleFunc("/upload", api.UploadFileHandler(db))
+	apiMux.HandleFunc("/download", api.DownloadLinkHandler(db))
+	apiMux.Handle("/protected", middleware.AuthMiddleware(http.HandlerFunc(api.ProtectedHandler(db))))
+
+	mux.Handle("/api/", http.StripPrefix("/api", apiMux))
 }
