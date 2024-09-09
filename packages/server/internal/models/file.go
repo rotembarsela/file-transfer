@@ -5,6 +5,12 @@ import (
 	"time"
 )
 
+type FileMetadataReduced struct {
+	FileName   string    `json:"fileName"`
+	UploadTime time.Time `json:"uploadTime"`
+	ExpiryTime time.Time `json:"expiryTime"`
+}
+
 type FileMetadata struct {
 	ID         int
 	FileName   string

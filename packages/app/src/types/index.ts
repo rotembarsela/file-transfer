@@ -1,5 +1,7 @@
 export interface IFile {
-    title: string
+    fileName: string
+    uploadTime: string
+    expiryTime: string
 }
 
 export interface IFilesTable {

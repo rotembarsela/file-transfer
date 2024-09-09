@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { FilesTable } from '../components/filesTable.tsx'
-import { IFile, IFilesTable } from '../types/index.ts'
+import { IFile } from '../types/index.ts'
 import { useEffect, useMemo, useState } from 'react'
 import Button from '../components/ui/button/Button.tsx'
 import { APIFetcher } from '../utils'
@@ -9,78 +9,85 @@ export const Route = createFileRoute('/files')({
     component: Files,
 })
 
-const files: IFilesTable = {
-    theadRow: ['Title', 'UploadedAt', 'Status'],
-    tbodyRows: [
-        ['Report Q1', '2024-09-01', 'Uploaded'],
-        ['Invoice 2024', '2024-08-29', 'Pending'],
-        ['Project Plan', '2024-08-15', 'Uploaded'],
-        ['Budget Overview', '2024-09-02', 'Pending'],
-        ['Meeting Notes', '2024-09-03', 'Uploaded'],
-        ['Annual Summary', '2024-08-22', 'Uploaded'],
-        ['Sales Data', '2024-08-25', 'Pending'],
-        ['Marketing Plan', '2024-09-01', 'Uploaded'],
-        ['Client Feedback', '2024-08-28', 'Uploaded'],
-        ['Technical Specs', '2024-08-30', 'Pending'],
-        ['Quarterly Review', '2024-09-04', 'Uploaded'],
-        ['Employee Handbook', '2024-08-20', 'Pending'],
-        ['Product Launch', '2024-08-18', 'Uploaded'],
-        ['Customer Survey', '2024-08-21', 'Pending'],
-        ['Financial Report', '2024-09-05', 'Uploaded'],
-        ['Workshop Notes', '2024-09-06', 'Uploaded'],
-        ['Risk Assessment', '2024-08-24', 'Pending'],
-        ['Strategy Document', '2024-08-26', 'Uploaded'],
-        ['Audit Trail', '2024-08-19', 'Pending'],
-        ['Marketing Analysis', '2024-09-07', 'Uploaded'],
-    ],
-}
+// const filesMock: IFilesTable = {
+//     theadRow: ['Title', 'UploadedAt', 'ExpiredAt'],
+//     tbodyRows: [
+//         ['Report Q1', '2024-09-01', '2024-09-30'],
+//         ['Invoice 2024', '2024-08-29', '2024-09-30'],
+//         ['Project Plan', '2024-08-15', '2024-09-30'],
+//         ['Budget Overview', '2024-09-02', '2024-09-30'],
+//         ['Meeting Notes', '2024-09-03', '2024-09-30'],
+//         ['Annual Summary', '2024-08-22', '2024-09-30'],
+//         ['Sales Data', '2024-08-25', '2024-09-30'],
+//         ['Marketing Plan', '2024-09-01', '2024-09-30'],
+//         ['Client Feedback', '2024-08-28', '2024-09-30'],
+//         ['Technical Specs', '2024-08-30', '2024-09-30'],
+//         ['Quarterly Review', '2024-09-04', '2024-09-30'],
+//         ['Employee Handbook', '2024-08-20', '2024-09-30'],
+//         ['Product Launch', '2024-08-18', '2024-09-30'],
+//         ['Customer Survey', '2024-08-21', '2024-09-30'],
+//         ['Financial Report', '2024-09-05', '2024-09-30'],
+//         ['Workshop Notes', '2024-09-06', '2024-09-30'],
+//         ['Risk Assessment', '2024-08-24', '2024-09-30'],
+//         ['Strategy Document', '2024-08-26', '2024-09-30'],
+//         ['Audit Trail', '2024-08-19', '2024-09-30'],
+//         ['Marketing Analysis', '2024-09-07', '2024-09-30'],
+//     ],
+// }
 
 function Files() {
-    const { theadRow, tbodyRows } = files
-
+    const [files, setFiles] = useState<IFile[]>([])
     const [searchTerm, setSearchTerm] = useState('')
-    const [statusFilter, setStatusFilter] = useState('All')
-    const [dateFilter, setDateFilter] = useState('All')
+    const [uploadedAtDateFilter, setUploadedAtDateFilter] = useState('All')
+    const [expiredAtDateFilter, setExpiredAtDateFilter] = useState('All')
 
     const filteredRows = useMemo(() => {
-        return tbodyRows.filter((row) => {
-            const [title, uploadedAt, status] = row
+        return files
+            .filter((row) => {
+                const { fileName, uploadTime, expiryTime } = row
 
-            const matchesSearch = title
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase())
+                const matchesSearch = fileName
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
 
-            const matchesStatus =
-                statusFilter === 'All' || status === statusFilter
+                const matchesUploadedAtDate =
+                    uploadedAtDateFilter === 'All' ||
+                    uploadTime === uploadedAtDateFilter
 
-            const matchesDate =
-                dateFilter === 'All' || uploadedAt === dateFilter
+                const matchesExpiredAtDate =
+                    expiredAtDateFilter === 'All' ||
+                    expiryTime === expiredAtDateFilter
 
-            return matchesSearch && matchesStatus && matchesDate
-        })
-    }, [tbodyRows, searchTerm, statusFilter, dateFilter])
+                return (
+                    matchesSearch &&
+                    matchesUploadedAtDate &&
+                    matchesExpiredAtDate
+                )
+            })
+            .map((row) => [row.fileName, row.uploadTime, row.expiryTime])
+    }, [files, searchTerm, uploadedAtDateFilter, expiredAtDateFilter])
 
-    const uniqueStatuses = useMemo(
-        () => Array.from(new Set(tbodyRows.map((row) => row[2]))),
-        [tbodyRows]
+    const uniqueUploadedDates = useMemo(
+        () => Array.from(new Set(files.map((file) => file.uploadTime))),
+        [files]
     )
-    const uniqueDates = useMemo(
-        () => Array.from(new Set(tbodyRows.map((row) => row[1]))),
-        [tbodyRows]
+    const uniqueExpiredDates = useMemo(
+        () => Array.from(new Set(files.map((file) => file.expiryTime))),
+        [files]
     )
 
     const clearFilters = () => {
         if (
             searchTerm === '' &&
-            statusFilter === 'All' &&
-            dateFilter === 'All'
+            uploadedAtDateFilter === 'All' &&
+            expiredAtDateFilter === 'All'
         ) {
             return
         }
 
         setSearchTerm('')
-        setStatusFilter('All')
-        setDateFilter('All')
+        setUploadedAtDateFilter('All')
+        setExpiredAtDateFilter('All')
     }
 
     useEffect(() => {
@@ -90,7 +97,7 @@ function Files() {
                     'files',
                     'GET'
                 )
-                console.log(filesResponse)
+                setFiles(filesResponse)
             } catch (error) {
                 console.error(error)
             }
@@ -111,11 +118,11 @@ function Files() {
                 />
                 <select
                     className="p-2 border border-gray-300 rounded"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
+                    value={uploadedAtDateFilter}
+                    onChange={(e) => setUploadedAtDateFilter(e.target.value)}
                 >
                     <option value="All">All Dates</option>
-                    {uniqueDates.map((date, index) => (
+                    {uniqueUploadedDates.map((date, index) => (
                         <option key={index} value={date}>
                             {date}
                         </option>
@@ -123,19 +130,24 @@ function Files() {
                 </select>
                 <select
                     className="p-2 border border-gray-300 rounded"
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
+                    value={expiredAtDateFilter}
+                    onChange={(e) => setExpiredAtDateFilter(e.target.value)}
                 >
                     <option value="All">All Statuses</option>
-                    {uniqueStatuses.map((status, index) => (
-                        <option key={index} value={status}>
-                            {status}
+                    {uniqueExpiredDates.map((date, index) => (
+                        <option key={index} value={date}>
+                            {date}
                         </option>
                     ))}
                 </select>
                 <Button onClick={clearFilters}>Clear Filters</Button>
             </div>
-            <FilesTable files={{ theadRow, tbodyRows: filteredRows }} />
+            <FilesTable
+                files={{
+                    theadRow: ['Title', 'UploadedAt', 'ExpiredAt'],
+                    tbodyRows: filteredRows,
+                }}
+            />
         </div>
     )
 }
