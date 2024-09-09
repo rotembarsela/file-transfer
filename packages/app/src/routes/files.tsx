@@ -3,7 +3,7 @@ import { FilesTable } from '../components/filesTable.tsx'
 import { IFile } from '../types/index.ts'
 import { useEffect, useMemo, useState } from 'react'
 import Button from '../components/ui/button/Button.tsx'
-import { APIFetcher } from '../utils'
+import { APIFetcher, utils } from '../utils'
 
 export const Route = createFileRoute('/files')({
     component: Files,
@@ -38,8 +38,8 @@ export const Route = createFileRoute('/files')({
 function Files() {
     const [files, setFiles] = useState<IFile[]>([])
     const [searchTerm, setSearchTerm] = useState('')
-    const [uploadedAtDateFilter, setUploadedAtDateFilter] = useState('All')
-    const [expiredAtDateFilter, setExpiredAtDateFilter] = useState('All')
+    const [uploadTimeDateFilter, setUploadedAtDateFilter] = useState('All')
+    const [expiryTimeDateFilter, setExpiredAtDateFilter] = useState('All')
 
     const filteredRows = useMemo(() => {
         return files
@@ -51,12 +51,12 @@ function Files() {
                     .includes(searchTerm.toLowerCase())
 
                 const matchesUploadedAtDate =
-                    uploadedAtDateFilter === 'All' ||
-                    uploadTime === uploadedAtDateFilter
+                    uploadTimeDateFilter === 'All' ||
+                    utils.dates.formatDate(uploadTime) === uploadTimeDateFilter
 
                 const matchesExpiredAtDate =
-                    expiredAtDateFilter === 'All' ||
-                    expiryTime === expiredAtDateFilter
+                    expiryTimeDateFilter === 'All' ||
+                    utils.dates.formatDate(expiryTime) === expiryTimeDateFilter
 
                 return (
                     matchesSearch &&
@@ -64,23 +64,37 @@ function Files() {
                     matchesExpiredAtDate
                 )
             })
-            .map((row) => [row.fileName, row.uploadTime, row.expiryTime])
-    }, [files, searchTerm, uploadedAtDateFilter, expiredAtDateFilter])
+            .map((row) => [
+                row.fileName,
+                utils.dates.formatDate(row.uploadTime),
+                utils.dates.formatDate(row.expiryTime),
+            ])
+    }, [files, searchTerm, uploadTimeDateFilter, expiryTimeDateFilter])
 
     const uniqueUploadedDates = useMemo(
-        () => Array.from(new Set(files.map((file) => file.uploadTime))),
+        () =>
+            Array.from(
+                new Set(
+                    files.map((file) => utils.dates.formatDate(file.uploadTime))
+                )
+            ),
         [files]
     )
     const uniqueExpiredDates = useMemo(
-        () => Array.from(new Set(files.map((file) => file.expiryTime))),
+        () =>
+            Array.from(
+                new Set(
+                    files.map((file) => utils.dates.formatDate(file.expiryTime))
+                )
+            ),
         [files]
     )
 
     const clearFilters = () => {
         if (
             searchTerm === '' &&
-            uploadedAtDateFilter === 'All' &&
-            expiredAtDateFilter === 'All'
+            uploadTimeDateFilter === 'All' &&
+            expiryTimeDateFilter === 'All'
         ) {
             return
         }
@@ -97,7 +111,12 @@ function Files() {
                     'files',
                     'GET'
                 )
-                setFiles(filesResponse)
+                const formattedFiles = filesResponse.map((file) => ({
+                    ...file,
+                    uploadTime: utils.dates.formatDate(file.uploadTime),
+                    expiryTime: utils.dates.formatDate(file.expiryTime),
+                }))
+                setFiles(formattedFiles)
             } catch (error) {
                 console.error(error)
             }
@@ -118,10 +137,10 @@ function Files() {
                 />
                 <select
                     className="p-2 border border-gray-300 rounded"
-                    value={uploadedAtDateFilter}
+                    value={uploadTimeDateFilter}
                     onChange={(e) => setUploadedAtDateFilter(e.target.value)}
                 >
-                    <option value="All">All Dates</option>
+                    <option value="All">All UploadedAt Dates</option>
                     {uniqueUploadedDates.map((date, index) => (
                         <option key={index} value={date}>
                             {date}
@@ -130,10 +149,10 @@ function Files() {
                 </select>
                 <select
                     className="p-2 border border-gray-300 rounded"
-                    value={expiredAtDateFilter}
+                    value={expiryTimeDateFilter}
                     onChange={(e) => setExpiredAtDateFilter(e.target.value)}
                 >
-                    <option value="All">All Statuses</option>
+                    <option value="All">All ExpiredAt Dates</option>
                     {uniqueExpiredDates.map((date, index) => (
                         <option key={index} value={date}>
                             {date}
