@@ -9,32 +9,6 @@ export const Route = createFileRoute('/files')({
     component: Files,
 })
 
-// const filesMock: IFilesTable = {
-//     theadRow: ['Title', 'UploadedAt', 'ExpiredAt'],
-//     tbodyRows: [
-//         ['Report Q1', '2024-09-01', '2024-09-30'],
-//         ['Invoice 2024', '2024-08-29', '2024-09-30'],
-//         ['Project Plan', '2024-08-15', '2024-09-30'],
-//         ['Budget Overview', '2024-09-02', '2024-09-30'],
-//         ['Meeting Notes', '2024-09-03', '2024-09-30'],
-//         ['Annual Summary', '2024-08-22', '2024-09-30'],
-//         ['Sales Data', '2024-08-25', '2024-09-30'],
-//         ['Marketing Plan', '2024-09-01', '2024-09-30'],
-//         ['Client Feedback', '2024-08-28', '2024-09-30'],
-//         ['Technical Specs', '2024-08-30', '2024-09-30'],
-//         ['Quarterly Review', '2024-09-04', '2024-09-30'],
-//         ['Employee Handbook', '2024-08-20', '2024-09-30'],
-//         ['Product Launch', '2024-08-18', '2024-09-30'],
-//         ['Customer Survey', '2024-08-21', '2024-09-30'],
-//         ['Financial Report', '2024-09-05', '2024-09-30'],
-//         ['Workshop Notes', '2024-09-06', '2024-09-30'],
-//         ['Risk Assessment', '2024-08-24', '2024-09-30'],
-//         ['Strategy Document', '2024-08-26', '2024-09-30'],
-//         ['Audit Trail', '2024-08-19', '2024-09-30'],
-//         ['Marketing Analysis', '2024-09-07', '2024-09-30'],
-//     ],
-// }
-
 function Files() {
     const [files, setFiles] = useState<IFile[]>([])
     const [searchTerm, setSearchTerm] = useState('')
@@ -42,33 +16,25 @@ function Files() {
     const [expiryTimeDateFilter, setExpiredAtDateFilter] = useState('All')
 
     const filteredRows = useMemo(() => {
-        return files
-            .filter((row) => {
-                const { fileName, uploadTime, expiryTime } = row
+        return files.filter((row) => {
+            const { fileName, uploadTime, expiryTime } = row
 
-                const matchesSearch = fileName
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase())
+            const matchesSearch = fileName
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase())
 
-                const matchesUploadedAtDate =
-                    uploadTimeDateFilter === 'All' ||
-                    utils.dates.formatDate(uploadTime) === uploadTimeDateFilter
+            const matchesUploadedAtDate =
+                uploadTimeDateFilter === 'All' ||
+                utils.dates.formatDate(uploadTime) === uploadTimeDateFilter
 
-                const matchesExpiredAtDate =
-                    expiryTimeDateFilter === 'All' ||
-                    utils.dates.formatDate(expiryTime) === expiryTimeDateFilter
+            const matchesExpiredAtDate =
+                expiryTimeDateFilter === 'All' ||
+                utils.dates.formatDate(expiryTime) === expiryTimeDateFilter
 
-                return (
-                    matchesSearch &&
-                    matchesUploadedAtDate &&
-                    matchesExpiredAtDate
-                )
-            })
-            .map((row) => [
-                row.fileName,
-                utils.dates.formatDate(row.uploadTime),
-                utils.dates.formatDate(row.expiryTime),
-            ])
+            return (
+                matchesSearch && matchesUploadedAtDate && matchesExpiredAtDate
+            )
+        })
     }, [files, searchTerm, uploadTimeDateFilter, expiryTimeDateFilter])
 
     const uniqueUploadedDates = useMemo(
@@ -80,6 +46,7 @@ function Files() {
             ),
         [files]
     )
+
     const uniqueExpiredDates = useMemo(
         () =>
             Array.from(
@@ -104,19 +71,35 @@ function Files() {
         setExpiredAtDateFilter('All')
     }
 
+    const handleFileDownload = async (row: IFile) => {
+        try {
+            const fileBlob = await APIFetcher<Blob, undefined>(
+                `/download?id=${row.id}`,
+                'GET'
+            )
+
+            const url = URL.createObjectURL(fileBlob)
+            const link = document.createElement('a')
+            link.href = url
+            link.download = row.fileName
+            document.body.appendChild(link)
+            link.click()
+
+            document.body.removeChild(link)
+            URL.revokeObjectURL(url)
+        } catch (error) {
+            console.error('Error downloading file:', error)
+        }
+    }
+
     useEffect(() => {
         async function fetchFiles() {
             try {
                 const filesResponse = await APIFetcher<IFile[], undefined>(
-                    'files',
+                    '/files',
                     'GET'
                 )
-                const formattedFiles = filesResponse.map((file) => ({
-                    ...file,
-                    uploadTime: utils.dates.formatDate(file.uploadTime),
-                    expiryTime: utils.dates.formatDate(file.expiryTime),
-                }))
-                setFiles(formattedFiles)
+                setFiles(filesResponse)
             } catch (error) {
                 console.error(error)
             }
@@ -163,10 +146,32 @@ function Files() {
             </div>
             <FilesTable
                 files={{
-                    theadRow: ['Title', 'UploadedAt', 'ExpiredAt'],
+                    theadRow: [
+                        {
+                            title: 'Title',
+                            sortable: true,
+                            accessor: 'fileName',
+                        },
+                        {
+                            title: 'UploadedAt',
+                            sortable: true,
+                            accessor: 'uploadTime',
+                        },
+                        {
+                            title: 'ExpiredAt',
+                            sortable: true,
+                            accessor: 'expiryTime',
+                        },
+                        { title: '', sortable: false, accessor: '' },
+                    ],
                     tbodyRows: filteredRows,
+                }}
+                onFileDownload={(row) => {
+                    handleFileDownload(row)
                 }}
             />
         </div>
     )
 }
+
+export default Files

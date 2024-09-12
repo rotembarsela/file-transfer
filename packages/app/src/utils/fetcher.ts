@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080/api/'
+const API_BASE_URL = 'http://localhost:8080/api'
 
 export async function APIFetcher<T, K = undefined>(
     endpoint: string,
@@ -39,9 +39,12 @@ async function fetcher<T, K = undefined>(
         contentType?.includes('application/octet-stream') ||
         contentType?.includes(
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
+        ) ||
+        contentType?.includes('application/pdf')
     ) {
         data = (await response.blob()) as unknown as T
+    } else if (contentType?.includes('text/plain')) {
+        data = (await response.text()) as unknown as T
     } else {
         throw new Error(`Unsupported response type: ${contentType}`)
     }

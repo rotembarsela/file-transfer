@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+// import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { createRouter, Link, RouterProvider } from '@tanstack/react-router'
 import './index.css'
@@ -27,8 +27,8 @@ const rootElement = document.getElementById('root')!
 if (!rootElement.innerHTML) {
     const root = ReactDOM.createRoot(rootElement)
     root.render(
-        <StrictMode>
-            <RouterProvider router={router} />
-        </StrictMode>
+        // <StrictMode>
+        <RouterProvider router={router} />
+        // </StrictMode>
     )
 }

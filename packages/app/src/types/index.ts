@@ -1,12 +1,15 @@
 export interface IFile {
+    id: number
     fileName: string
     uploadTime: string
     expiryTime: string
 }
 
-export interface IFilesTable {
-    theadRow: string[]
-    tbodyRows: string[][]
+export interface IFile extends Record<string, unknown> {}
+
+export interface IFilesTable<T> {
+    theadRow: { title: string; sortable: boolean; accessor: keyof T }[]
+    tbodyRows: T[]
 }
 
 export type Variant = 'info' | 'success' | 'danger' | 'warning'

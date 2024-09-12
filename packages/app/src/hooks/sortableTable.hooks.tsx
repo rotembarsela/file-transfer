@@ -5,21 +5,29 @@ type SortConfig = {
     direction: 'asc' | 'desc'
 }
 
-type UseSortableTableProps = {
-    rows: (string | number)[][]
+type Column<T> = {
+    title: string
+    sortable: boolean
+    accessor: keyof T
 }
 
-type UseSortableTableReturn = {
-    sortedRows: (string | number)[][]
+type UseSortableTableProps<T> = {
+    rows: T[]
+    columns: Column<T>[]
+}
+
+type UseSortableTableReturn<T> = {
+    sortedRows: T[]
     handleSort: (index: number) => void
     sortConfig: SortConfig | null
     getAriaSort: (index: number) => 'none' | 'ascending' | 'descending'
     getAriaLabel: (header: string, index: number) => string
 }
 
-export function useSortableTable({
+export function useSortableTable<T>({
     rows,
-}: UseSortableTableProps): UseSortableTableReturn {
+    columns,
+}: UseSortableTableProps<T>): UseSortableTableReturn<T> {
     const [sortConfig, setSortConfig] = useState<SortConfig | null>(null)
 
     useEffect(() => {
@@ -46,27 +54,30 @@ export function useSortableTable({
     const sortedRows = useMemo(() => {
         if (!sortConfig) return rows
 
+        const { key, direction } = sortConfig
+        const { accessor } = columns[key]
+
         return [...rows].sort((a, b) => {
-            const aValue = a[sortConfig.key]
-            const bValue = b[sortConfig.key]
+            const aValue = a[accessor]
+            const bValue = b[accessor]
 
             if (typeof aValue === 'string' && typeof bValue === 'string') {
-                return sortConfig.direction === 'asc'
+                return direction === 'asc'
                     ? aValue.localeCompare(bValue)
                     : bValue.localeCompare(aValue)
             } else if (
                 typeof aValue === 'number' &&
                 typeof bValue === 'number'
             ) {
-                return sortConfig.direction === 'asc'
-                    ? aValue - bValue
-                    : bValue - aValue
+                return direction === 'asc' ? aValue - bValue : bValue - aValue
             }
             return 0
         })
-    }, [rows, sortConfig])
+    }, [rows, sortConfig, columns])
 
     const handleSort = (index: number) => {
+        if (!columns[index].sortable) return
+
         if (sortConfig?.key === index) {
             setSortConfig({
                 key: index,

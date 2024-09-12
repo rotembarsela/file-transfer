@@ -230,6 +230,7 @@ func DownloadLinkHandler(db *sql.DB) http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileName))
+		w.Header().Set("Content-Type", "application/octet-stream")
 
 		http.ServeFile(w, r, filePath)
 	}
@@ -237,7 +238,7 @@ func DownloadLinkHandler(db *sql.DB) http.HandlerFunc {
 
 func FetchAllFilesHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		query := `SELECT filename, upload_time, expiry_time FROM files`
+		query := `SELECT id, filename, upload_time, expiry_time FROM files`
 		rows, err := db.Query(query)
 		if err != nil {
 			http.Error(w, "Server error while fetching files", http.StatusInternalServerError)
@@ -249,7 +250,7 @@ func FetchAllFilesHandler(db *sql.DB) http.HandlerFunc {
 
 		for rows.Next() {
 			var file models.FileMetadataReduced
-			err := rows.Scan(&file.FileName, &file.UploadTime, &file.ExpiryTime)
+			err := rows.Scan(&file.ID, &file.FileName, &file.UploadTime, &file.ExpiryTime)
 			if err != nil {
 				http.Error(w, "Error scanning file data", http.StatusInternalServerError)
 				return

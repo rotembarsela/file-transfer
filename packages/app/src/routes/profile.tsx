@@ -32,7 +32,7 @@ function Profile() {
 
     return (
         <div className="h-full grid grid-cols-2 gap-3">
-            <Paper className="flex flex-col items-center gap-3">
+            <Paper className="flex flex-col gap-3">
                 <div className="relative">
                     <Avatar size="lg">
                         <label className="absolute bottom-2 right-2 flex items-center justify-center w-8 h-8 bg-blue-500 rounded-full cursor-pointer hover:bg-blue-600 z-20">
@@ -60,7 +60,7 @@ function Profile() {
                     </Avatar>
                 </div>
             </Paper>
-            <Paper>world</Paper>
+            <Paper>test</Paper>
         </div>
     )
 }
